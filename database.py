@@ -2,7 +2,7 @@ from flask import Flask, render_template , request, redirect, url_for, flash, se
 import os # Import os module to handle file paths
 import sqlite3 # Import sqlite3 for database handling
 from werkzeug.security import generate_password_hash, check_password_hash # For passwords
-from models import init_db # All the models for databse
+from models import init_db, get_db # All the models for databse
 
 app = Flask(__name__)  # Initialize the Flask application
 
@@ -21,10 +21,15 @@ def register():
         email = request.form['email']
         password = request.form['password']
         password_hash = generate_password_hash(password)
-        
-        new_user = User(username=username, email=email, password_hash=password_hash)
-        db.session.add(new_user)
-        db.session.commit()
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', 
+                        (username, email, password_hash))
+
+        conn.commit()
+        conn.close()
         
         return redirect(url_for('index'))
     
@@ -36,14 +41,18 @@ def login():
         email = request.form['email']
         password = request.form['password']
         
-        user = User.query.filter_by(email=email).first()
+        # Retrieve user from the database
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+        conn.close()
         
         if user and check_password_hash(user.password_hash, password):
             # Correct credentials, log the user in
             session['user_id'] = user.user_id
             session['username'] = user.username
 
-        
             return redirect(url_for('index'))
         
         else:
@@ -61,19 +70,24 @@ def index():
 # {website}/profile
 @app.route('/profile')
 def profile():
-if not session.get('username'):
-    flash('You need to log in first.', 'warning')
-    return redirect(url_for('login'))
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
     
     user_id = session['user_id']
     
-    # Fetch player's profile
-    player_profile = PlayerProfile.query.filter_by(user_id=user_id).first()
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM player_profile WHERE user_id = ?', (user_id,))
+    player_profile = cursor.fetchone()
 
     player_statistics = None
     if player_profile:
         # Fetch player's statistics if the profile exists
-        player_statistics = PlayerStatistics.query.filter_by(profile_id=player_profile.profile_id).first()
+        cursor.execute('SELECT * FROM player_statistics WHERE profile_id = ?', (player_profile['profile_id'],))
+        player_statistics = cursor.fetchone()
+    
+    conn.close()
 
     return render_template('profile.html', player_profile=player_profile, player_statistics=player_statistics)
 
@@ -87,28 +101,25 @@ def create_profile():
     user_id = session['user_id']
 
     # Check if the user already has a profile
-    existing_profile = PlayerProfile.query.filter_by(user_id=user_id).first()
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM player_profile WHERE user_id = ?', (user_id,))
+    existing_profile = cursor.fetchone()
+
     if existing_profile:
         flash('Profile already exists.', 'info')
         return redirect(url_for('profile'))
 
     # Create a new profile
-    new_profile = PlayerProfile(
-        user_id=user_id,
-        game="Fortnite",  # Set a default game initially, can be changed later
-    )
-    db.session.add(new_profile)
-    db.session.commit()
+    cursor.execute('INSERT INTO player_profile (user_id, game) VALUES (?, ?)', (user_id, 'Fortnite'))
+    conn.commit()
+
 
     # After committing the profile, create a PlayerStatistics record
-    new_statistics = PlayerStatistics(
-        profile_id=new_profile.profile_id,
-        total_kills=0,
-        total_deaths=0,
-        total_assists=0
-    )
-    db.session.add(new_statistics)
-    db.session.commit()
+    cursor.execute('INSERT INTO player_statistics (profile_id, total_kills, total_deaths, total_assists) VALUES (?, ?, ?, ?)',
+                   (profile.profile_id, 0, 0, 0))
+    conn.commit()
+    conn.close()
 
     flash('Profile created successfully!', 'success')
     return redirect(url_for('profile'))
@@ -121,7 +132,12 @@ def tournaments():
         return redirect(url_for('login'))
     
     # Fetch all tournaments from the database
-    tournaments = Tournament.query.all()
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM tournaments')
+    tournaments = cursor.fetchall()
+    conn.close()
+
     print("Tournaments fetched:", tournaments)  # Debugging line
     
     return render_template('tournaments.html', tournaments=tournaments)
@@ -132,6 +148,7 @@ def team():
     if not session.get('username'):
         flash('You need to log in first.', 'warning')
         return redirect(url_for('login'))
+    
     return render_template('team.html')
 
 
@@ -147,16 +164,14 @@ def update_game():
     user_id = session['user_id']
     selected_game = request.form['game']
 
-    # Find the player's profile
-    player_profile = PlayerProfile.query.filter_by(user_id=user_id).first()
+    # Find the player's profile and update the game
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE player_profile SET game = ? WHERE user_id = ?', (selected_game, user_id))
+    conn.commit()
+    conn.close()
 
-    if player_profile:
-        player_profile.game = selected_game
-        db.session.commit()
-        flash(f'Game updated to {selected_game}', 'success')
-    else:
-        flash('Profile not found.', 'danger')
-
+    flash(f'Game updated to {selected_game}', 'success')
     return redirect(url_for('profile'))
 
 

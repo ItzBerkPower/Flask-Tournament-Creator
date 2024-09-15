@@ -3,7 +3,7 @@ import sqlite3 # Import sqlite3 for database handling
 DATABASE = 'datah.db'
 
 # Connect to database
-def get_db_connection():
+def get_db():
     conn = sqlite3.connect(DATABASE) #
     conn.row_factory = sqlite3.Row # Allows fetching rows as dictionaries
     return conn 
@@ -11,7 +11,7 @@ def get_db_connection():
 
 # Initialise database
 def init_db():
-    with get_db_connection() as conn:
+    with get_db() as conn:
         cursor = conn.cursor()
 
         # Create the user table
