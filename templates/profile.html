@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+    <h1>Your Profile</h1>
+
+    {% if player_profile %}
+        <h3>Game: {{ player_profile.game }}</h3>
+        <form method="POST" action="{{ url_for('update_game') }}">
+            <label for="game">Select Game:</label>
+            <select name="game" id="game" class="form-control">
+                <option value="Fortnite" {% if player_profile.game == 'Fortnite' %}selected{% endif %}>Fortnite</option>
+                <option value="Roblox" {% if player_profile.game == 'Roblox' %}selected{% endif %}>Roblox</option>
+            </select>
+            <button type="submit" class="btn btn-success mt-3">Save</button>
+        </form>
+        <hr>
+        {% if player_statistics %}
+            <h3>Statistics:</h3>
+            <ul>
+                <li>Total Kills: {{ player_statistics.total_kills }}</li>
+                <li>Total Deaths: {{ player_statistics.total_deaths }}</li>
+                <li>Total Assists: {{ player_statistics.total_assists }}</li>
+            </ul>
+        {% else %}
+            <p>No statistics available.</p>
+        {% endif %}
+    {% else %}
+        <p>You don't have a profile yet. Click the button below to create one.</p>
+        <form method="POST" action="{{ url_for('create_profile') }}">
+            <button type="submit" class="btn btn-primary">Create Profile</button>
+        </form>
+    {% endif %}
+
+{% endblock %}

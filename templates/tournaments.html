@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block title %}Tournaments{% endblock %}
+
+{% block content %}
+    <style>
+        .navbar {
+            background-color: #343a40;
+        }
+        .navbar-brand, .nav-link {
+            color: #fff !important;
+        }
+        .navbar-brand:hover, .nav-link:hover {
+            color: #ffc107 !important;
+        }
+
+        .tournament-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tournament-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .tournament-card-container {
+            margin: 15px;
+        }
+    </style>
+    <h1>Available Tournaments</h1>
+    <div class="row">
+        {% for tournament in tournaments %}
+            <div class="col-md-4 tournament-card-container">
+                <div class="card tournament-card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ tournament.name }}</h5>
+                        <p class="card-text">Game: {{ tournament.game }}</p>
+                        <p class="card-text">Start Date: {{ tournament.start_date.strftime('%d/%m/%Y %H:%M:%S') }}</p>
+                        <p class="card-text">End Date: {% if tournament.end_date %}{{ tournament.end_date.strftime('%d/%m/%Y %H:%M:%S') }}{% else %}TBA{% endif %}</p>
+                        <a href="#" class="btn btn-primary">Join</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
