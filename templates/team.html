@@ -5,4 +5,10 @@
 {% block content %}
     <h1>Your Team</h1>
     <p>Team information will be displayed here.</p>
+    
+    <!-- Add buttons for joining or creating a team -->
+    <div class="d-flex justify-content-start mt-4">
+        <a href="{{ url_for('join_team') }}" class="btn btn-primary me-3">Join Team</a>
+        <a href="{{ url_for('create_team') }}" class="btn btn-success">Create Team</a>
+    </div>
 {% endblock %}

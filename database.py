@@ -105,6 +105,7 @@ def create_profile():
 
     if existing_profile:
         flash('Profile already exists.', 'info')
+        session['profile_id'] = existing_profile['profile_id'] # Make sure profile_id is in session
         return redirect(url_for('profile'))
 
     # Create a new profile
@@ -112,6 +113,7 @@ def create_profile():
     conn.commit()
 
     profile_id = cursor.lastrowid
+    session['profile_id'] = profile_id # Set profile_id in session
 
     # After committing the profile, create a PlayerStatistics record
     cursor.execute('INSERT INTO player_statistics (profile_id, total_kills, total_deaths, total_assists) VALUES (?, ?, ?, ?)',
@@ -143,12 +145,94 @@ def tournaments():
     return render_template('tournaments.html', tournaments=tournaments)
 
 
+@app.route('/create_team', methods=['GET', 'POST'])
+def create_team():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+    
+    if not session.get('profile_id'):
+        flash('You need to create a profile first.', 'warning')
+        return redirect(url_for('profile'))
+    
+    if request.method == 'POST':
+        team_name = request.form['team_name']
+
+        if not team_name:
+            flash('Team name cannot be empty!', 'danger')
+            return redirect(url_for('team'))
+    
+        # Try finding the team
+        with get_db() as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM team WHERE team_name = ?', (team_name,))
+            existing_team = cursor.fetchone()
+
+            if existing_team:
+                flash('Team name already exists. Please choose another name.', 'danger')
+            
+            else:
+                cursor.execute('INSERT INTO team (team_name) VALUES (?)', (team_name,))
+                conn.commit()
+                flash(f'Team "{team_name}" created successfully!', 'success')
+
+        return redirect(url_for('team'))
+
+    return render_template('create_team.html')
+
+
+@app.route('/join_team', methods=['GET', 'POST'])
+def join_team():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+    
+    if not session.get('profile_id'):
+        flash('You need to create a profile first.', 'warning')
+        return redirect(url_for('profile'))
+    
+    if request.method == 'POST':
+        team_name = request.form['team_name']
+
+        with get_db() as conn:
+            cursor = conn.cursor()
+
+            cursor.execute('SELECT * FROM team WHERE team_name = ?', (team_name,))
+            team = cursor.fetchone()
+
+            if not team:
+                flash('Team not found. Please check the team name or create a new one.', 'danger')
+
+            else:
+                team_id = team['team_id']
+                profile_id = session['profile_id']
+
+                cursor.execute('SELECT * FROM team_member WHERE team_id = ? AND profile_id = ?', (team_id, profile_id))
+                existing_member = cursor.fetchone()
+
+                if existing_member:
+                    flash(f'You are already a member of the team "{team_name}".', 'info')
+
+                else:
+                    cursor.execute('INSERT INTO team_member (team_id, profile_id) VALUES (?, ?)', (team_id, profile_id))
+                    conn.commit()
+                    flash(f'You have successfully joined the team "{team_name}".', 'success')
+
+    return render_template('join_team.html')
+
+
+
+
 @app.route('/team')
 def team():
     if not session.get('username'):
         flash('You need to log in first.', 'warning')
         return redirect(url_for('login'))
-    
+
+    if not session.get('profile_id'):
+        flash('You need to create a profile first.', 'warning')
+        return redirect(url_for('profile'))
+
     return render_template('team.html')
 
 
@@ -173,6 +257,8 @@ def update_game():
 
     flash(f'Game updated to {selected_game}', 'success')
     return redirect(url_for('profile'))
+
+
 
 
 if __name__ == '__main__':  # Check if the script is run directly (not imported)
