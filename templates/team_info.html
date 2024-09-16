@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}Team Info{% endblock %}
+
+{% block content %}
+<h1>Team: {{ team_name }}</h1>
+
+<h3>Team Members:</h3>
+<ul class="list-group">
+    {% for member in team_members %}
+        <li class="list-group-item">{{ member['username'] }}</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Back to Home</a>
+{% endblock %}

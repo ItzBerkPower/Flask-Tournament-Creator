@@ -233,8 +233,39 @@ def team():
         flash('You need to create a profile first.', 'warning')
         return redirect(url_for('profile'))
 
-    return render_template('team.html')
 
+    with get_db() as conn:
+        cursor = conn.cursor()
+        profile_id = session['profile_id']
+
+        # Check if the current player is already on a team
+        cursor.execute('''
+            SELECT team.team_id, team.team_name 
+            FROM team_member 
+            JOIN team ON team_member.team_id = team.team_id 
+            WHERE team_member.profile_id = ?
+        ''', (profile_id,))
+
+        team_info = cursor.fetchone()
+
+        if team_info:
+            # If the player is on a team, get the usernames of all members on that team
+            team_id = team_info['team_id']
+            team_name = team_info['team_name']
+
+            cursor.execute('''
+                SELECT user.username 
+                FROM team_member 
+                JOIN player_profile ON team_member.profile_id = player_profile.profile_id
+                JOIN user ON player_profile.user_id = user.user_id
+                WHERE team_member.team_id = ?
+            ''', (team_id,))
+            team_members = cursor.fetchall()
+
+            return render_template('team_info.html', team_name=team_name, team_members=team_members)
+
+    # If the player is not on any team, show the create/join team options
+    return render_template('team.html')
 
 
 
