@@ -3,15 +3,12 @@ import os # Import os module to handle file paths
 import sqlite3 # Import sqlite3 for database handling
 from werkzeug.security import generate_password_hash, check_password_hash # For passwords
 from models import init_db, get_db # All the models for databse
+from datetime import datetime
 
 app = Flask(__name__)  # Initialize the Flask application
 
 # Set a secret key for session management (required for using session)
 app.secret_key = 'berkay'  # Replace 'your_secret_key' with a random string
-
-# Database configuration
-base_dir = os.path.abspath(os.path.dirname(__file__))  
-db_path = os.path.join(base_dir, 'datah.db')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -25,7 +22,7 @@ def register():
         conn = get_db()
         cursor = conn.cursor()
 
-        cursor.execute('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)', 
+        cursor.execute('INSERT INTO user (username, email, password_hash) VALUES (?, ?, ?)', 
                         (username, email, password_hash))
 
         conn.commit()
@@ -44,14 +41,14 @@ def login():
         # Retrieve user from the database
         conn = get_db()
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        cursor.execute('SELECT * FROM user WHERE email = ?', (email,))
         user = cursor.fetchone()
         conn.close()
         
-        if user and check_password_hash(user.password_hash, password):
+        if user and check_password_hash(user['password_hash'], password):
             # Correct credentials, log the user in
-            session['user_id'] = user.user_id
-            session['username'] = user.username
+            session['user_id'] = user['user_id']
+            session['username'] = user['username']
 
             return redirect(url_for('index'))
         
@@ -114,10 +111,11 @@ def create_profile():
     cursor.execute('INSERT INTO player_profile (user_id, game) VALUES (?, ?)', (user_id, 'Fortnite'))
     conn.commit()
 
+    profile_id = cursor.lastrowid
 
     # After committing the profile, create a PlayerStatistics record
     cursor.execute('INSERT INTO player_statistics (profile_id, total_kills, total_deaths, total_assists) VALUES (?, ?, ?, ?)',
-                   (profile.profile_id, 0, 0, 0))
+                   (profile_id, 0, 0, 0))
     conn.commit()
     conn.close()
 
@@ -134,11 +132,13 @@ def tournaments():
     # Fetch all tournaments from the database
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM tournaments')
+    cursor.execute('SELECT * FROM tournament')
     tournaments = cursor.fetchall()
-    conn.close()
 
     print("Tournaments fetched:", tournaments)  # Debugging line
+
+    conn.close()
+
     
     return render_template('tournaments.html', tournaments=tournaments)
 
@@ -176,7 +176,7 @@ def update_game():
 
 
 if __name__ == '__main__':  # Check if the script is run directly (not imported)
-    app.run(debug=True)  # Run the Flask application with debug mode enabled
     init_db() # Initialise database
+    app.run(debug=True)  # Run the Flask application with debug mode enabled
 
 

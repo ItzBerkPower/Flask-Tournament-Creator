@@ -35,8 +35,17 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ tournament.name }}</h5>
                         <p class="card-text">Game: {{ tournament.game }}</p>
-                        <p class="card-text">Start Date: {{ tournament.start_date.strftime('%d/%m/%Y %H:%M:%S') }}</p>
-                        <p class="card-text">End Date: {% if tournament.end_date %}{{ tournament.end_date.strftime('%d/%m/%Y %H:%M:%S') }}{% else %}TBA{% endif %}</p>
+                        
+                        <!-- Formatting the date string by slicing -->
+                        <p class="card-text">Start Date: {{ tournament.start_date[:10] }} {{ tournament.start_date[11:19] }}</p>
+                        <p class="card-text">End Date: 
+                            {% if tournament.end_date %}
+                                {{ tournament.end_date[:10] }} {{ tournament.end_date[11:19] }}
+                            {% else %}
+                                TBA
+                            {% endif %}
+                        </p>
+                        
                         <a href="#" class="btn btn-primary">Join</a>
                     </div>
                 </div>

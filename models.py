@@ -1,10 +1,13 @@
 import sqlite3 # Import sqlite3 for database handling
+import os
 
-DATABASE = 'datah.db'
+#DATABASE = 'datah.db', kept creating it in outer file if you run the code in outer directory
+base_dir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(base_dir, 'datah.db')
 
 # Connect to database
 def get_db():
-    conn = sqlite3.connect(DATABASE) #
+    conn = sqlite3.connect(db_path) #
     conn.row_factory = sqlite3.Row # Allows fetching rows as dictionaries
     return conn 
 
@@ -155,4 +158,3 @@ def init_db():
     conn.commit()
     #conn.close(), don't need as in 'with' command, which is pythonic way of automatically closing website
 
-# Call this function to initialize the d
