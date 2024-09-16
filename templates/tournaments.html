@@ -27,7 +27,14 @@
             margin: 15px;
         }
     </style>
+
     <h1>Available Tournaments</h1>
+
+    <!-- Create Tournament Button -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ url_for('create_tournament') }}" class="btn btn-success">Create Tournament</a>
+    </div>
+    
     <div class="row">
         {% for tournament in tournaments %}
             <div class="col-md-4 tournament-card-container">

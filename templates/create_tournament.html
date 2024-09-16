@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}Create Tournament{% endblock %}
+
+{% block content %}
+<h1>Create a New Tournament</h1>
+
+<form method="POST">
+    <div class="mb-3">
+        <label for="tournament_name" class="form-label">Tournament Name</label>
+        <input type="text" class="form-control" id="tournament_name" name="tournament_name" required>
+    </div>
+    
+    <div class="mb-3">
+        <label for="game" class="form-label">Select Game</label>
+        <select class="form-control" id="game" name="game" required>
+            <option value="Fortnite">Fortnite</option>
+            <option value="Roblox">Roblox</option>
+        </select>
+    </div>
+    
+    <div class="mb-3">
+        <label for="start_date" class="form-label">Start Date</label>
+        <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+    </div>
+    
+    <div class="mb-3">
+        <label for="end_date" class="form-label">End Date (Optional)</label>
+        <input type="datetime-local" class="form-control" id="end_date" name="end_date">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Tournament</button>
+</form>
+
+<a href="{{ url_for('tournaments') }}" class="btn btn-secondary mt-3">Back to Tournaments</a>
+{% endblock %}

@@ -132,15 +132,10 @@ def tournaments():
         return redirect(url_for('login'))
     
     # Fetch all tournaments from the database
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM tournament')
-    tournaments = cursor.fetchall()
-
-    print("Tournaments fetched:", tournaments)  # Debugging line
-
-    conn.close()
-
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM tournament')
+        tournaments = cursor.fetchall()
     
     return render_template('tournaments.html', tournaments=tournaments)
 
@@ -290,6 +285,48 @@ def update_game():
     return redirect(url_for('profile'))
 
 
+@app.route('/create_tournament', methods=['GET', 'POST'])
+def create_tournament():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+    
+    if not session.get('profile_id'):
+        flash('You need to create a profile first.', 'warning')
+        return redirect(url_for('profile'))
+
+    if request.method == 'POST':
+        tournament_name = request.form['tournament_name']
+        game = request.form['game']
+        start_date = request.form['start_date']
+        end_date = request.form.get('end_date')  # Optional
+
+        # Validate inputs
+        if not tournament_name or not game or not start_date:
+            flash('Tournament name, game, and start date are required!', 'danger')
+            return redirect(url_for('create_tournament'))
+
+        # Insert the tournament into the database
+        with get_db() as conn:
+            cursor = conn.cursor()
+            
+            # If end_date is provided, include it in the SQL query, otherwise omit it.
+            if end_date:
+                cursor.execute('''
+                    INSERT INTO tournament (name, game, start_date, end_date)
+                    VALUES (?, ?, ?, ?)
+                    ''', (tournament_name, game, start_date, end_date))
+            else:
+                cursor.execute('''
+                    INSERT INTO tournament (name, game, start_date)
+                    VALUES (?, ?, ?)
+                    ''', (tournament_name, game, start_date))
+                
+            conn.commit()
+            flash(f'Tournament "{tournament_name}" created successfully!', 'success')
+            return redirect(url_for('tournaments'))
+        
+    return render_template('create_tournament.html')
 
 
 if __name__ == '__main__':  # Check if the script is run directly (not imported)
