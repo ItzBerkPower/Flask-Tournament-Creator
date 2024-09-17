@@ -395,6 +395,89 @@ def logout():
     return redirect(url_for('index'))
 
 
+
+
+# Updating stuff:
+
+@app.route('/update_username', methods=['POST'])
+def update_username():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+
+    new_username = request.form.get('username')
+    user_id = session['user_id']
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute('UPDATE user SET username = ? WHERE user_id = ?', (new_username, user_id))
+    conn.commit()
+    session['username'] = new_username  # Update session with new username
+    flash('Username updated successfully.', 'success')
+    conn.close()
+
+    return redirect(url_for('profile'))
+
+
+@app.route('/update_email', methods=['POST'])
+def update_email():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+
+    new_email = request.form.get('email')
+    user_id = session['user_id']
+
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('UPDATE user SET email = ? WHERE user_id = ?', (new_email, user_id))
+    conn.commit()
+    flash('Email updated successfully.', 'success')
+    conn.close()
+
+    return redirect(url_for('profile'))
+
+
+@app.route('/update_password', methods=['POST'])
+def update_password():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+
+    old_password = request.form.get('old_password')
+    new_password = request.form.get('new_password')
+    user_id = session['user_id']
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # Get the current password hash for the user
+    cursor.execute('SELECT password_hash FROM user WHERE user_id = ?', (user_id,))
+    user = cursor.fetchone()
+
+    if not user or not check_password_hash(user['password_hash'], old_password):
+        flash('Incorrect current password.', 'danger')
+    else:
+        new_password_hash = generate_password_hash(new_password)
+        cursor.execute('UPDATE user SET password_hash = ? WHERE user_id = ?', (new_password_hash, user_id))
+        conn.commit()
+        flash('Password updated successfully.', 'success')
+
+    conn.close()
+    return redirect(url_for('profile'))
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':  # Check if the script is run directly (not imported)
     init_db() # Initialise database
     app.run(debug=True)  # Run the Flask application with debug mode enabled

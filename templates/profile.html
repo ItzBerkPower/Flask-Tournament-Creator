@@ -26,10 +26,49 @@
         {% else %}
             <p>No statistics available.</p>
         {% endif %}
+
     {% else %}
         <p>You don't have a profile yet. Click the button below to create one.</p>
         <form method="POST" action="{{ url_for('create_profile') }}">
             <button type="submit" class="btn btn-primary">Create Profile</button>
+        </form>
+    {% endif %}
+
+    <h1> Update User Details</h1>
+
+    {% if session.get('username') %}
+        <!-- Update Username Section -->
+        <h3>Update Username</h3>
+        <form method="POST" action="{{ url_for('update_username') }}">
+            <div class="form-group">
+                <label for="username">New Username:</label>
+                <input type="text" name="username" id="username" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">Update Username</button>
+        </form>
+
+        <hr>
+
+        <!-- Update Email Section -->
+        <h3>Update Email</h3>
+        <form method="POST" action="{{ url_for('update_email') }}">
+            <div class="form-group">
+                <label for="email">New Email:</label>
+                <input type="email" name="email" id="email" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">Update Email</button>
+        </form>
+
+        <hr>
+
+        <!-- Update Password Section -->
+        <h3>Update Password</h3>
+        <form method="POST" action="{{ url_for('update_password') }}">
+            <div class="form-group">
+                <label for="password">New Password:</label>
+                <input type="password" name="password" id="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">Update Password</button>
         </form>
     {% endif %}
 
