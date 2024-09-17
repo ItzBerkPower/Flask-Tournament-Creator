@@ -39,6 +39,10 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('team') }}">Team</a>
                         </li>
+                        <li class="nav-item"></li>
+                            <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+                        </li>
+                        
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('index') }}">Home</a>
@@ -54,6 +58,19 @@
             </div>
         </div>
     </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="container mt-4">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
 
     <div class="container mt-4">
         {% block content %}

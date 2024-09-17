@@ -34,7 +34,7 @@
     <div class="d-flex justify-content-end mb-3">
         <a href="{{ url_for('create_tournament') }}" class="btn btn-success">Create Tournament</a>
     </div>
-    
+
     <div class="row">
         {% for tournament in tournaments %}
             <div class="col-md-4 tournament-card-container">
@@ -53,7 +53,8 @@
                             {% endif %}
                         </p>
                         
-                        <a href="#" class="btn btn-primary">Join</a>
+                        <form action="{{ url_for('join_tournament', tournament_id=tournament.tournament_id) }}" method="POST">
+                            <button type="submit" class="btn btn-primary">Join</button>
                     </div>
                 </div>
             </div>

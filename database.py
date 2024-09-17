@@ -83,6 +83,7 @@ def profile():
         # Fetch player's statistics if the profile exists
         cursor.execute('SELECT * FROM player_statistics WHERE profile_id = ?', (player_profile['profile_id'],))
         player_statistics = cursor.fetchone()
+        session['profile_id'] = player_profile['profile_id']
     
     conn.close()
 
@@ -130,12 +131,23 @@ def tournaments():
     if not session.get('username'):
         flash('You need to log in first.', 'warning')
         return redirect(url_for('login'))
+
+    if not session.get('profile_id'):
+        flash('You need to create a profile first.', 'warning')
+        return redirect(url_for('profile'))
     
+    profile_id = session.get('profile_id')
+    tournament_info = None
+    teams_in_tournament = []
+
+
     # Fetch all tournaments from the database
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM tournament')
         tournaments = cursor.fetchall()
+
+
     
     return render_template('tournaments.html', tournaments=tournaments)
 
@@ -327,6 +339,60 @@ def create_tournament():
             return redirect(url_for('tournaments'))
         
     return render_template('create_tournament.html')
+
+
+
+@app.route('/join_tournament/<int:tournament_id>', methods=['POST'])
+def join_tournament(tournament_id):
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+
+    if not session.get('profile_id'):
+        flash('You need to create a profile first.', 'warning')
+        return redirect(url_for('profile'))
+
+    profile_id = session.get('profile_id')
+
+    # Check if the player is part of a team
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT team_id FROM team_member WHERE profile_id = ?
+        ''', (profile_id,))
+        team = cursor.fetchone()
+
+        if not team:
+            flash('You need to be part of a team to join a tournament.', 'danger')
+            return redirect(url_for('tournaments'))
+
+        team_id = team['team_id']
+
+        # Check if the team has already joined the tournament
+        cursor.execute('''
+            SELECT * FROM tournament_participant WHERE tournament_id = ? AND team_id = ?
+        ''', (tournament_id, team_id))
+        existing_participant = cursor.fetchone()
+
+        if existing_participant:
+            flash('Your team has already joined this tournament.', 'info')
+        else:
+            # Join the tournament
+            cursor.execute('''
+                INSERT INTO tournament_participant (tournament_id, team_id, profile_id) VALUES (?, ?, ?)
+            ''', (tournament_id, team_id, profile_id))
+            conn.commit()
+            flash('Your team has successfully joined the tournament!', 'success')
+
+    return redirect(url_for('tournaments'))
+
+
+@app.route('/logout')
+def logout():
+    # Clear the session to log out the user
+    session.clear()
+    flash('You have successfully logged out.', 'success')
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':  # Check if the script is run directly (not imported)
