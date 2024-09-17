@@ -144,12 +144,34 @@ def tournaments():
     # Fetch all tournaments from the database
     with get_db() as conn:
         cursor = conn.cursor()
+
         cursor.execute('SELECT * FROM tournament')
         tournaments = cursor.fetchall()
 
+        # Check if the user is in a tournament
+        cursor.execute('''
+            SELECT tournament.name, tournament.tournament_id FROM tournament
+            JOIN tournament_participant ON tournament.tournament_id = tournament_participant.tournament_id
+            WHERE tournament_participant.profile_id = ?
+        ''', (profile_id,))
+        joined_tournament = cursor.fetchone()
 
-    
-    return render_template('tournaments.html', tournaments=tournaments)
+        # Fetch all teams in the joined tournament (if any)
+        teams_in_tournament = []
+        if joined_tournament:
+            cursor.execute('''
+                SELECT team.team_name FROM team
+                JOIN tournament_participant ON team.team_id = tournament_participant.team_id
+                WHERE tournament_participant.tournament_id = ?
+            ''', (joined_tournament['tournament_id'],))
+            teams_in_tournament = cursor.fetchall()
+            print(teams_in_tournament)
+
+    return render_template('tournaments.html',
+        tournaments=tournaments,
+        joined_tournament=joined_tournament,
+        teams_in_tournament=teams_in_tournament
+    )
 
 
 @app.route('/create_team', methods=['GET', 'POST'])

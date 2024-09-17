@@ -26,6 +26,28 @@
         .tournament-card-container {
             margin: 15px;
         }
+
+        /* Styling for the "You're part of" text */
+        .part-of-text {
+                color: green;
+                text-decoration: underline;
+                font-size: 1.5rem;
+                font-weight: bold;
+                margin-top: 20px;
+            }
+
+            /* Styling for the "Participating Teams" text */
+            .participating-teams-text {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+
+            /* Additional styling for the red message */
+            .red-message {
+                color: red;
+                font-weight: bold;
+                margin-top: 20px;
+            }
     </style>
 
     <h1>Available Tournaments</h1>
@@ -55,9 +77,32 @@
                         
                         <form action="{{ url_for('join_tournament', tournament_id=tournament.tournament_id) }}" method="POST">
                             <button type="submit" class="btn btn-primary">Join</button>
+                        </form>
                     </div>
                 </div>
             </div>
         {% endfor %}
     </div>
+
+    <hr>
+    
+    <!-- If user is part of a tournament, show the teams -->
+    {% if joined_tournament %}
+        <h2 class="part-of-text">You're part of {{ joined_tournament.name }}</h2>
+        
+        <h3 class="participating-teams-text">Participating Teams:</h3>
+        {% if teams_in_tournament %}
+            <ul>
+                {% for team in teams_in_tournament %}
+                    <li>{{ team.name }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No teams have joined this tournament yet.</p>
+        {% endif %}
+    {% endif %}
+
+    <!-- Display the red message at the bottom -->
+    <p class="red-message">* Not going to go as far as making the tournaments function, but will have matches</p>
+
 {% endblock %}
