@@ -74,9 +74,9 @@
         <!-- Game and Player Statistics side by side -->
         <div class="profile-game-stats">
             <div>
-                <h3>Game: {{ player_profile.game }}</h3>
+                <h3>Favourite Game: {{ player_profile.game }}</h3>
                 <form method="POST" action="{{ url_for('update_game') }}">
-                    <label for="game">Select Game:</label>
+                    <label for="game">Select Favourite Game:</label>
                     <select name="game" id="game" class="form-control">
                         <option value="Fortnite" {% if player_profile.game == 'Fortnite' %}selected{% endif %}>Fortnite</option>
                         <option value="Roblox" {% if player_profile.game == 'Roblox' %}selected{% endif %}>Roblox</option>
@@ -144,8 +144,11 @@
             <h3>Update Password</h3>
             <form method="POST" action="{{ url_for('update_password') }}">
                 <div class="form-group">
+                    <label for="password">Old Password:</label>
+                    <input type="password" name="old_password" id="old_password" class="form-control" required>
+
                     <label for="password">New Password:</label>
-                    <input type="password" name="password" id="password" class="form-control" required>
+                    <input type="password" name="new_password" id="new_password" class="form-control" required>
                 </div>
                 <button type="submit" class="btn btn-success mt-3">Update Password</button>
             </form>
