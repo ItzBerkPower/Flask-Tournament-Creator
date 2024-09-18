@@ -158,3 +158,13 @@ def init_db():
     conn.commit()
     #conn.close(), don't need as in 'with' command, which is pythonic way of automatically closing website
 
+
+# HELPER FUNCTIONS
+
+def get_user_team_id(profile_id):
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT team_id FROM team_member WHERE profile_id = ?", (profile_id,))
+        result = cursor.fetchone()
+        
+    return result['team_id'] if result else None

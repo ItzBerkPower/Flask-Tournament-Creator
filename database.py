@@ -5,7 +5,7 @@ from flask import Flask, render_template , request, redirect, url_for, flash, se
 import os # Import os module to handle file paths
 from sqlite3 import IntegrityError # Import sqlite3 for database handling
 from werkzeug.security import generate_password_hash, check_password_hash # For passwords
-from models import init_db, get_db # All the models for databse
+from models import * # All the models for databse
 from datetime import datetime
 
 from flask_wtf import FlaskForm
@@ -321,6 +321,27 @@ def team():
 
     # If the player is not on any team, show the create/join team options
     return render_template('team.html')
+
+
+@app.route('/leave_team', methods=['POST'])
+def leave_team():
+    profile_id = session.get('profile_id')  # Replace with your method to get the current user's ID
+    team_id = get_user_team_id(profile_id)  # Replace with your method to get the user's current team ID
+    
+    if team_id:
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Delete the user from the team
+        cursor.execute("DELETE FROM team_member WHERE profile_id = ? AND team_id = ?", (profile_id, team_id))
+        
+        conn.commit()
+        conn.close()
+        flash('You have successfully left the team.', 'success')
+    else:
+        flash('You are not a member of this team.', 'error')
+
+    return redirect(url_for('index'))  # Redirect to a relevant page, e.g., homepage or team selection page
 
 
 

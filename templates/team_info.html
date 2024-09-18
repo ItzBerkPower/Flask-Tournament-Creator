@@ -3,14 +3,79 @@
 {% block title %}Team Info{% endblock %}
 
 {% block content %}
-<h1>Team: {{ team_name }}</h1>
+    <style>
+        /* Gradient background */
+        body {
+            background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
+            min-height: 100vh;
+            padding: 40px;
+            font-family: Arial, sans-serif;
+        }
 
-<h3>Team Members:</h3>
-<ul class="list-group">
-    {% for member in team_members %}
-        <li class="list-group-item">{{ member['username'] }}</li>
-    {% endfor %}
-</ul>
+        /* Title Styling */
+        h1.team-title {
+            color: white;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+        }
 
-<a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">Back to Home</a>
+        /* Card layout for team info */
+        .team-card {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 600px;
+        }
+
+        /* Team members list styling */
+        .list-group-item {
+            border: none;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .list-group-item:nth-child(even) {
+            background-color: #e9ecef;
+        }
+
+        /* Button styling */
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn-container .btn {
+            flex: 1;
+            margin: 0 5px;
+        }
+    </style>
+
+    <h1 class="team-title">Team: {{ team_name }}</h1>
+
+    <div class="team-card">
+        <h3 class="text-center">Team Members:</h3>
+        <ul class="list-group">
+            {% for member in team_members %}
+                <li class="list-group-item">{{ member['username'] }}</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Button Container -->
+        <div class="btn-container">
+            <!-- Leave Team Button -->
+            <form method="POST" action="{{ url_for('leave_team') }}">
+                <button type="submit" class="btn btn-danger">Leave Team</button>
+            </form>
+
+            <!-- Back to Home Button -->
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
 {% endblock %}
