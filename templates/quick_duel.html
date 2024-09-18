@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block title %}Quick Duel{% endblock %}
+
+{% block content %}
+    <h1>Quick Duel</h1>
+
+    {% if duel_id %}
+        <h3 class="mt-4">
+            {% if team2_name %}
+                <strong>{{ team1_name }}</strong> VS <strong>{{ team2_name }}</strong>
+            {% else %}
+                Waiting on Team 2, you are already in a duel, Duel ID: {{ duel_id }}
+            {% endif %}
+        </h3>
+
+        <!-- Button to leave the duel -->
+        <form method="POST" action="{{ url_for('delete_duel') }}">
+            <input type="hidden" name="duel_id" value="{{ duel_id }}">
+            <button type="submit" class="btn btn-danger mt-3">Delete Duel</button>
+        </form>
+
+    {% else %}
+        <!-- If user is not part of a duel, show options to create or join a duel -->
+        <div class="d-flex flex-column align-items-center">
+            <form method="POST" action="{{ url_for('create_duel') }}">
+                <button type="submit" class="btn btn-success">Create Quick Duel</button>
+            </form>
+
+            <p class="my-3">OR</p>
+
+            <form method="POST" action="{{ url_for('join_duel') }}">
+                <div class="form-group">
+                    <label for="duel_id">Enter Duel ID:</label>
+                    <input type="text" name="duel_id" id="duel_id" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Join Quick Duel</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,28 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-        <h2>Register</h2>
-        <form method="POST">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Register</button>
-        </form>
+{% extends "layout.html" %}
+
+{% block title %}Register | Skill-Up Gaming{% endblock %}
+
+{% block content %}
+    <style>
+        /* Gradient background that fills the whole screen, minus the navbar */
+        body {
+            background: linear-gradient(135deg, #4a90e2, #50c878);
+            height: 100vh;
+        }
+
+        /* Container that centers the card */
+        .register-container {
+            min-height: calc(100vh - 56px); /* Full height minus the height of the navbar */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Floating card with shadow */
+        .card {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px; /* Limit the width of the card */
+            margin: 20px; /* Prevent card from touching screen edges on small screens */
+        }
+
+        /* Custom styles for form elements */
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        /* Custom button styles */
+        button {
+            background-color: #4a90e2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #3e78cc;
+        }
+    </style>
+
+    <!-- Gradient Background with Register Form in a Centered Card -->
+    <div class="register-container">
+        <div class="card shadow p-4">
+            <!-- Register Heading -->
+            <h1 class="text-center mb-4">Register a New User</h1>
+            
+            <!-- Registration Form -->
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="form-group mb-3">
+                    <input type="text" name="username" class="form-control" placeholder="Username" required>
+                </div>
+                <div class="form-group mb-3">
+                    <input type="email" name="email" class="form-control" placeholder="E-Mail" required>
+                </div>
+                <div class="form-group mb-4">
+                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+        </div>
     </div>
-</body>
-</html>
+{% endblock %}

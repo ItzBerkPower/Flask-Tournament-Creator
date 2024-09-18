@@ -96,10 +96,10 @@ def init_db():
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS match (
             match_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            tournament_id INTEGER NOT NULL,
+            tournament_id INTEGER,
             round INTEGER NOT NULL,
             team1_id INTEGER NOT NULL,
-            team2_id INTEGER NOT NULL,
+            team2_id INTEGER,
             winner_team_id INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

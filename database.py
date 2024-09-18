@@ -1,3 +1,6 @@
+# ADD REGISTRATION DETECTION FOR UNIQUE ACCOUNTS  
+
+
 from flask import Flask, render_template , request, redirect, url_for, flash, session # Import Flask and render_template for handling requests and rendering HTML templates
 import os # Import os module to handle file paths
 import sqlite3 # Import sqlite3 for database handling
@@ -491,7 +494,183 @@ def update_password():
     return redirect(url_for('profile'))
 
 
+# Route to render the main Quick Duel page
+@app.route('/quick_duel')
+def quick_duel():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
 
+    profile_id = session.get('profile_id')
+    team_id = None
+    duel_id = None
+    match_data = None
+    team1_name = team2_name = None
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+
+        # Check if the player is part of a team
+        cursor.execute('''
+            SELECT team_member.team_id
+            FROM team_member
+            WHERE team_member.profile_id = ?
+        ''', (profile_id,))
+        result = cursor.fetchone()
+
+        if result:
+            team_id = result['team_id']
+        else:
+            flash('You need to be part of a team to create or join a duel.', 'warning')
+            return redirect(url_for('profile'))
+
+        # Check if the team is already in a duel
+        cursor.execute('''
+            SELECT match.match_id, match.team1_id, match.team2_id, 
+                   team1.team_name AS team1_name, team2.team_name AS team2_name
+            FROM match
+            LEFT JOIN team AS team1 ON match.team1_id = team1.team_id
+            LEFT JOIN team AS team2 ON match.team2_id = team2.team_id
+            WHERE match.team1_id = ? OR match.team2_id = ?
+        ''', (team_id, team_id))
+        match_data = cursor.fetchone()
+
+        if match_data:
+            duel_id = match_data['match_id']
+            team1_name = match_data['team1_name']
+            team2_name = match_data['team2_name']
+
+    return render_template('quick_duel.html', duel_id=duel_id, team1_name=team1_name, team2_name=team2_name)
+
+# Route to create a quick duel
+@app.route('/create_duel', methods=['POST'])
+def create_duel():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+
+    profile_id = session.get('profile_id')
+    team_id = None
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+
+        # Check if the player is part of a team
+        cursor.execute('''
+            SELECT team_member.team_id
+            FROM team_member
+            WHERE team_member.profile_id = ?
+        ''', (profile_id,))
+        result = cursor.fetchone()
+
+        if result:
+            team_id = result['team_id']
+        else:
+            flash('You need to be part of a team to create a duel.', 'warning')
+            return redirect(url_for('profile'))
+
+        # Create a new duel (match) and assign this user's team as team 1
+        cursor.execute('''
+            INSERT INTO match (team1_id, round)
+            VALUES (?, 0)
+        ''', (team_id,))
+        conn.commit()
+        flash('Quick duel created. You are Team 1.', 'success')
+
+    return redirect(url_for('quick_duel'))
+
+
+# Route to join an existing quick duel
+@app.route('/join_duel', methods=['POST'])
+def join_duel():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+
+    profile_id = session.get('profile_id')
+    team_id = None
+    duel_id = request.form.get('duel_id')
+
+    if not duel_id:
+        flash('Please provide a duel ID to join.', 'danger')
+        return redirect(url_for('quick_duel'))
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+
+        # Check if the player is part of a team
+        cursor.execute('''
+            SELECT team_member.team_id
+            FROM team_member
+            WHERE team_member.profile_id = ?
+        ''', (profile_id,))
+        result = cursor.fetchone()
+
+        if result:
+            team_id = result['team_id']
+        else:
+            flash('You need to be part of a team to join a duel.', 'warning')
+            return redirect(url_for('profile'))
+
+        # Check if the duel exists and if team 2 is empty
+        cursor.execute('''
+            SELECT match_id, team2_id
+            FROM match
+            WHERE match_id = ? AND team2_id IS NULL
+        ''', (duel_id,))
+        match_data = cursor.fetchone()
+
+        if match_data:
+            # Assign the user's team as team 2
+            cursor.execute('''
+                UPDATE match
+                SET team2_id = ?
+                WHERE match_id = ?
+            ''', (team_id, duel_id))
+            conn.commit()
+            flash(f'You have joined Duel {duel_id} as Team 2.', 'success')
+        else:
+            flash('Invalid duel ID or duel already has two teams.', 'danger')
+
+    return redirect(url_for('quick_duel'))
+
+# Route to leave a duel
+@app.route('/delete_duel', methods=['POST'])
+def delete_duel():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+
+    profile_id = session.get('profile_id')
+    duel_id = request.form.get('duel_id')
+    team_id = None
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+
+        # Check if the player is part of a team
+        cursor.execute('''
+            SELECT team_member.team_id
+            FROM team_member
+            WHERE team_member.profile_id = ?
+        ''', (profile_id,))
+        result = cursor.fetchone()
+
+        if result:
+            team_id = result['team_id']
+        else:
+            flash('You need to be part of a team to delete a duel.', 'warning')
+            return redirect(url_for('profile'))
+
+        # Remove the user's team from the duel
+        cursor.execute('''
+            DELETE FROM match WHERE (team1_id = ? OR team2_id = ?) AND match_id = ?
+        ''', (team_id, team_id, duel_id))
+        conn.commit()
+
+        flash(f'You have deleted Duel {duel_id}.', 'success')
+
+    return redirect(url_for('quick_duel'))
 
 
 
