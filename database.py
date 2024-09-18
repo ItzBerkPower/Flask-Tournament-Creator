@@ -154,13 +154,7 @@ def create_profile():
 
 @app.route('/tournaments')
 def tournaments():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
-
-    if not session.get('profile_id'):
-        flash('You need to create a profile first.', 'warning')
-        return redirect(url_for('profile'))
+    check_if_profile_and_user_exists()
     
     profile_id = session.get('profile_id')
     tournament_info = None
@@ -202,13 +196,7 @@ def tournaments():
 
 @app.route('/create_team', methods=['GET', 'POST'])
 def create_team():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
-    
-    if not session.get('profile_id'):
-        flash('You need to create a profile first.', 'warning')
-        return redirect(url_for('profile'))
+    check_if_profile_and_user_exists()
     
     if request.method == 'POST':
         team_name = request.form['team_name']
@@ -238,13 +226,7 @@ def create_team():
 
 @app.route('/join_team', methods=['GET', 'POST'])
 def join_team():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
-    
-    if not session.get('profile_id'):
-        flash('You need to create a profile first.', 'warning')
-        return redirect(url_for('profile'))
+    check_if_profile_and_user_exists()
     
     if request.method == 'POST':
         team_name = request.form['team_name']
@@ -280,14 +262,7 @@ def join_team():
 
 @app.route('/team')
 def team():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
-
-    if not session.get('profile_id'):
-        flash('You need to create a profile first.', 'warning')
-        return redirect(url_for('profile'))
-
+    check_if_profile_and_user_exists()
 
     with get_db() as conn:
         cursor = conn.cursor()
@@ -348,9 +323,7 @@ def leave_team():
 # UPDATING PROFILE DETAILS
 @app.route('/update_game', methods=['POST'])
 def update_game():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
+    check_if_user_exists()
 
     user_id = session['user_id']
     selected_game = request.form['game']
@@ -368,13 +341,7 @@ def update_game():
 
 @app.route('/create_tournament', methods=['GET', 'POST'])
 def create_tournament():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
-    
-    if not session.get('profile_id'):
-        flash('You need to create a profile first.', 'warning')
-        return redirect(url_for('profile'))
+    check_if_profile_and_user_exists()
 
     if request.method == 'POST':
         tournament_name = request.form['tournament_name']
@@ -413,13 +380,7 @@ def create_tournament():
 
 @app.route('/join_tournament/<int:tournament_id>', methods=['POST'])
 def join_tournament(tournament_id):
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
-
-    if not session.get('profile_id'):
-        flash('You need to create a profile first.', 'warning')
-        return redirect(url_for('profile'))
+    check_if_profile_and_user_exists()
 
     profile_id = session.get('profile_id')
 
@@ -470,9 +431,7 @@ def logout():
 
 @app.route('/update_username', methods=['POST'])
 def update_username():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
+    check_if_user_exists()
 
     new_username = request.form.get('username')
     user_id = session['user_id']
@@ -491,9 +450,7 @@ def update_username():
 
 @app.route('/update_email', methods=['POST'])
 def update_email():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
+    check_if_user_exists()
 
     new_email = request.form.get('email')
     user_id = session['user_id']
@@ -511,9 +468,7 @@ def update_email():
 
 @app.route('/update_password', methods=['POST'])
 def update_password():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
+    check_if_user_exists()
 
     old_password = request.form.get('old_password')
     new_password = request.form.get('new_password')
@@ -540,9 +495,7 @@ def update_password():
 
 @app.route('/quick_duel')
 def quick_duel():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
+    check_if_user_exists()
 
     profile_id = session.get('profile_id')
     team_id = None
@@ -620,9 +573,7 @@ def quick_duel():
 # Route to create a quick duel
 @app.route('/create_duel', methods=['POST'])
 def create_duel():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
+    check_if_user_exists()
 
     profile_id = session.get('profile_id')
     team_id = None
@@ -658,9 +609,7 @@ def create_duel():
 # Route to join an existing quick duel
 @app.route('/join_duel', methods=['POST'])
 def join_duel():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
+    check_if_user_exists()
 
     profile_id = session.get('profile_id')
     team_id = None
@@ -722,7 +671,7 @@ def end_duel():
         cursor = conn.cursor()
 
         try:
-            # 1. Get the statistics for all players in the match
+            # Get stats for all players in the match
             cursor.execute('''
                 SELECT profile_id, kills, deaths, assists
                 FROM match_statistic
@@ -730,14 +679,14 @@ def end_duel():
             ''', (match_id,))
             player_stats = cursor.fetchall()  # Get all the statistics for players in this match
 
-            # 2. Update the total statistics in the 'player_statistics' table
+            # Update total stats in the 'player_statistics' table
             for player in player_stats:
                 profile_id = player['profile_id']
                 kills = player['kills']
                 deaths = player['deaths']
                 assists = player['assists']
 
-                # Check if the player already has statistics in the 'player_statistics' table
+                # Check if player already has statistics in the 'player_statistics' table
                 cursor.execute('''
                     SELECT total_kills, total_deaths, total_assists
                     FROM player_statistics
@@ -761,10 +710,10 @@ def end_duel():
                         VALUES (?, ?, ?, ?)
                     ''', (profile_id, kills, deaths, assists))
 
-            # 3. Delete the match from the 'match' table
+            # Delete match from 'match' table
             cursor.execute('DELETE FROM match WHERE match_id = ?', (match_id,))
 
-            # 4. Commit the changes
+            # Commit changes
             conn.commit()
 
             flash('Duel ended, and statistics have been updated.', 'success')
@@ -780,17 +729,12 @@ def end_duel():
 
 @app.route('/update_statistic', methods=['POST'])
 def update_statistic():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
+    check_if_user_exists()
 
     profile_id = session.get('profile_id')  # This gets the profile_id from the form
     match_id = request.form.get('match_id')      # This gets the match_id from the form
     action = request.form.get('action')          # This gets the action (kill, death, or assist) from the form
 
-    print("PROFILE: ",profile_id)
-    print("MATCH: ", match_id)
-    print("ACTION: ", action)
 
     if not profile_id or not match_id or not action:
         flash('Invalid request.', 'danger')
@@ -800,40 +744,41 @@ def update_statistic():
         cursor = conn.cursor()
 
         try:
-            # Check if the player is part of the match
-            cursor.execute('''
-                SELECT 1
+            # Check if player is part of match
+            cursor.execute('''SELECT 1
                 FROM team_member
                 JOIN match ON (team_member.team_id = match.team1_id OR team_member.team_id = match.team2_id)
                 WHERE match.match_id = ?
-                  AND team_member.profile_id = ?
-            ''', (match_id, profile_id))
+                AND team_member.profile_id = ?''', (match_id, profile_id))
+            
             result = cursor.fetchone()
 
             if not result:
                 flash('This player is not part of the match.', 'warning')
                 return redirect(url_for('quick_duel'))
 
-            # Ensure that a valid action is provided
+            # Ensure valid action provided
             if action not in ['kill', 'death', 'assist']:
                 flash('Invalid action.', 'danger')
                 return redirect(url_for('quick_duel'))
 
-            # Increment the appropriate statistic
+
+            # Increment the appropriate stat
             column = {
                 'kill': 'kills',
                 'death': 'deaths',
                 'assist': 'assists'
             }[action]
 
-            # Insert or update the statistic for the correct player
+            # Insert/Update the stat for the correct player
             cursor.execute(f'''
                 INSERT INTO match_statistic (match_id, profile_id, {column})
                 VALUES (?, ?, 1)
                 ON CONFLICT(match_id, profile_id)
-                DO UPDATE SET {column} = {column} + 1
-            ''', (match_id, profile_id))
+                DO UPDATE SET {column} = {column} + 1''', (match_id, profile_id))
+
             conn.commit()
+
             flash(f'{column.capitalize()} updated successfully.', 'success')
 
         except Exception as e:
@@ -880,3 +825,6 @@ if __name__ == '__main__':  # Check if the script is run directly (not imported)
     app.run(debug=True)  # Run the Flask application with debug mode enabled
 
 
+# Questions to ask:
+# - Ask to go through website
+# - Ask if I should keep try-except catch blocks

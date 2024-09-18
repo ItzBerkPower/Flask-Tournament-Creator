@@ -1,5 +1,14 @@
 import sqlite3 # Import sqlite3 for database handling
 import os
+from flask import Flask, render_template , request, redirect, url_for, flash, session # Import Flask and render_template for handling requests and rendering HTML templates
+from sqlite3 import IntegrityError # Import sqlite3 for database handling
+from werkzeug.security import generate_password_hash, check_password_hash # For passwords
+
+from datetime import datetime
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, EmailField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Email, EqualTo
 
 #DATABASE = 'datah.db', kept creating it in outer file if you run the code in outer directory
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -154,3 +163,19 @@ def get_user_team_id(profile_id):
         result = cursor.fetchone()
 
     return result['team_id'] if result else None
+
+
+
+def check_if_profile_and_user_exists():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+
+    if not session.get('profile_id'):
+        flash('You need to create a profile first.', 'warning')
+        return redirect(url_for('profile'))
+    
+def check_if_user_exists():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
