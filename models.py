@@ -123,6 +123,7 @@ def init_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (match_id) REFERENCES match(match_id),
             FOREIGN KEY (profile_id) REFERENCES player_profile(profile_id)
+            UNIQUE(match_id, profile_id)
         );
         ''')
 

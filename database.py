@@ -538,7 +538,6 @@ def update_password():
     return redirect(url_for('profile'))
 
 
-# Route to render the main Quick Duel page
 @app.route('/quick_duel')
 def quick_duel():
     if not session.get('username'):
@@ -550,6 +549,9 @@ def quick_duel():
     duel_id = None
     match_data = None
     team1_name = team2_name = None
+    round_number = None
+    team1_players = []
+    team2_players = []
 
     with get_db() as conn:
         cursor = conn.cursor()
@@ -570,7 +572,7 @@ def quick_duel():
 
         # Check if the team is already in a duel
         cursor.execute('''
-            SELECT match.match_id, match.team1_id, match.team2_id, 
+            SELECT match.match_id, match.team1_id, match.team2_id, match.round, 
                    team1.team_name AS team1_name, team2.team_name AS team2_name
             FROM match
             LEFT JOIN team AS team1 ON match.team1_id = team1.team_id
@@ -583,8 +585,37 @@ def quick_duel():
             duel_id = match_data['match_id']
             team1_name = match_data['team1_name']
             team2_name = match_data['team2_name']
+            round_number = match_data['round']
 
-    return render_template('quick_duel.html', duel_id=duel_id, team1_name=team1_name, team2_name=team2_name)
+            # Fetch players for both teams
+            cursor.execute('''
+                SELECT user.username
+                FROM team_member
+                JOIN player_profile ON team_member.profile_id = player_profile.profile_id
+                JOIN user ON player_profile.user_id = user.user_id
+                WHERE team_member.team_id = ?
+            ''', (match_data['team1_id'],))
+            team1_players = cursor.fetchall()
+
+            cursor.execute('''
+                SELECT user.username
+                FROM team_member
+                JOIN player_profile ON team_member.profile_id = player_profile.profile_id
+                JOIN user ON player_profile.user_id = user.user_id
+                WHERE team_member.team_id = ?
+            ''', (match_data['team2_id'],))
+            team2_players = cursor.fetchall()
+
+    return render_template(
+        'quick_duel.html',
+        duel_id=duel_id,
+        team1_name=team1_name,
+        team2_name=team2_name,
+        round_number=round_number,
+        team1_players=team1_players,
+        team2_players=team2_players
+    )
+
 
 # Route to create a quick duel
 @app.route('/create_duel', methods=['POST'])
@@ -678,47 +709,168 @@ def join_duel():
 
     return redirect(url_for('quick_duel'))
 
-# Route to leave a duel
-@app.route('/delete_duel', methods=['POST'])
-def delete_duel():
-    if not session.get('username'):
-        flash('You need to log in first.', 'warning')
-        return redirect(url_for('login'))
+# Route to end a duel
+@app.route('/end_duel', methods=['POST'])
+def end_duel():
+    match_id = request.form.get('match_id')
 
-    profile_id = session.get('profile_id')
-    duel_id = request.form.get('duel_id')
-    team_id = None
+    if not match_id:
+        flash('Invalid request.', 'danger')
+        return redirect(url_for('quick_duel'))
 
     with get_db() as conn:
         cursor = conn.cursor()
 
-        # Check if the player is part of a team
-        cursor.execute('''
-            SELECT team_member.team_id
-            FROM team_member
-            WHERE team_member.profile_id = ?
-        ''', (profile_id,))
-        result = cursor.fetchone()
+        try:
+            # 1. Get the statistics for all players in the match
+            cursor.execute('''
+                SELECT profile_id, kills, deaths, assists
+                FROM match_statistic
+                WHERE match_id = ?
+            ''', (match_id,))
+            player_stats = cursor.fetchall()  # Get all the statistics for players in this match
 
-        if result:
-            team_id = result['team_id']
-        else:
-            flash('You need to be part of a team to delete a duel.', 'warning')
-            return redirect(url_for('profile'))
+            # 2. Update the total statistics in the 'player_statistics' table
+            for player in player_stats:
+                profile_id = player['profile_id']
+                kills = player['kills']
+                deaths = player['deaths']
+                assists = player['assists']
 
-        # Remove the user's team from the duel
-        cursor.execute('''
-            DELETE FROM match WHERE (team1_id = ? OR team2_id = ?) AND match_id = ?
-        ''', (team_id, team_id, duel_id))
-        conn.commit()
+                # Check if the player already has statistics in the 'player_statistics' table
+                cursor.execute('''
+                    SELECT total_kills, total_deaths, total_assists
+                    FROM player_statistics
+                    WHERE profile_id = ?
+                ''', (profile_id,))
+                existing_stats = cursor.fetchone()
 
-        flash(f'You have deleted Duel {duel_id}.', 'success')
+                if existing_stats:
+                    # If statistics exist, update the values
+                    cursor.execute('''
+                        UPDATE player_statistics
+                        SET total_kills = total_kills + ?,
+                            total_deaths = total_deaths + ?,
+                            total_assists = total_assists + ?
+                        WHERE profile_id = ?
+                    ''', (kills, deaths, assists, profile_id))
+                else:
+                    # If no statistics exist, insert new ones
+                    cursor.execute('''
+                        INSERT INTO player_statistics (profile_id, total_kills, total_deaths, total_assists)
+                        VALUES (?, ?, ?, ?)
+                    ''', (profile_id, kills, deaths, assists))
+
+            # 3. Delete the match from the 'match' table
+            cursor.execute('DELETE FROM match WHERE match_id = ?', (match_id,))
+
+            # 4. Commit the changes
+            conn.commit()
+
+            flash('Duel ended, and statistics have been updated.', 'success')
+
+        except Exception as e:
+            app.logger.error(f"Error ending duel: {e}")
+            flash('An error occurred while ending the duel and updating statistics.', 'danger')
 
     return redirect(url_for('quick_duel'))
 
 
 
 
+@app.route('/update_statistic', methods=['POST'])
+def update_statistic():
+    if not session.get('username'):
+        flash('You need to log in first.', 'warning')
+        return redirect(url_for('login'))
+
+    profile_id = session.get('profile_id')  # This gets the profile_id from the form
+    match_id = request.form.get('match_id')      # This gets the match_id from the form
+    action = request.form.get('action')          # This gets the action (kill, death, or assist) from the form
+
+    print("PROFILE: ",profile_id)
+    print("MATCH: ", match_id)
+    print("ACTION: ", action)
+
+    if not profile_id or not match_id or not action:
+        flash('Invalid request.', 'danger')
+        return redirect(url_for('quick_duel'))
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+
+        try:
+            # Check if the player is part of the match
+            cursor.execute('''
+                SELECT 1
+                FROM team_member
+                JOIN match ON (team_member.team_id = match.team1_id OR team_member.team_id = match.team2_id)
+                WHERE match.match_id = ?
+                  AND team_member.profile_id = ?
+            ''', (match_id, profile_id))
+            result = cursor.fetchone()
+
+            if not result:
+                flash('This player is not part of the match.', 'warning')
+                return redirect(url_for('quick_duel'))
+
+            # Ensure that a valid action is provided
+            if action not in ['kill', 'death', 'assist']:
+                flash('Invalid action.', 'danger')
+                return redirect(url_for('quick_duel'))
+
+            # Increment the appropriate statistic
+            column = {
+                'kill': 'kills',
+                'death': 'deaths',
+                'assist': 'assists'
+            }[action]
+
+            # Insert or update the statistic for the correct player
+            cursor.execute(f'''
+                INSERT INTO match_statistic (match_id, profile_id, {column})
+                VALUES (?, ?, 1)
+                ON CONFLICT(match_id, profile_id)
+                DO UPDATE SET {column} = {column} + 1
+            ''', (match_id, profile_id))
+            conn.commit()
+            flash(f'{column.capitalize()} updated successfully.', 'success')
+
+        except Exception as e:
+            app.logger.error(f"Error updating statistic: {e}")
+            flash('An error occurred while updating the statistic.', 'danger')
+
+    return redirect(url_for('quick_duel'))
+
+
+
+@app.route('/next_round', methods=['POST'])
+def next_round():
+    match_id = request.form.get('match_id')
+
+    if not match_id:
+        flash('Invalid request.', 'danger')
+        return redirect(url_for('quick_duel'))
+
+    with get_db() as conn:
+        cursor = conn.cursor()
+
+        try:
+            # Increment the round number by 1
+            cursor.execute('''
+                UPDATE match
+                SET round = round + 1
+                WHERE match_id = ?
+            ''', (match_id,))
+            conn.commit()
+
+            flash('Round number updated successfully.', 'success')
+
+        except Exception as e:
+            app.logger.error(f"Error updating round number: {e}")
+            flash('An error occurred while updating the round number.', 'danger')
+
+    return redirect(url_for('quick_duel'))
 
 
 
