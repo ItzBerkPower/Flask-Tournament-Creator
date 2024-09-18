@@ -110,21 +110,6 @@ def init_db():
         );
         ''')
 
-        # Create the match_result table
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS match_result (
-            match_result_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            match_id INTEGER NOT NULL,
-            profile_id INTEGER NOT NULL,
-            statistics_id INTEGER NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (match_id) REFERENCES match(match_id),
-            FOREIGN KEY (profile_id) REFERENCES player_profile(profile_id),
-            FOREIGN KEY (statistics_id) REFERENCES match_statistic(statistic_id)
-        );
-        ''')
-
         # Create the match_statistic table
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS match_statistic (
@@ -166,5 +151,5 @@ def get_user_team_id(profile_id):
         cursor = conn.cursor()
         cursor.execute("SELECT team_id FROM team_member WHERE profile_id = ?", (profile_id,))
         result = cursor.fetchone()
-        
+
     return result['team_id'] if result else None
