@@ -3,10 +3,14 @@
 
 from flask import Flask, render_template , request, redirect, url_for, flash, session # Import Flask and render_template for handling requests and rendering HTML templates
 import os # Import os module to handle file paths
-import sqlite3 # Import sqlite3 for database handling
+from sqlite3 import IntegrityError # Import sqlite3 for database handling
 from werkzeug.security import generate_password_hash, check_password_hash # For passwords
 from models import init_db, get_db # All the models for databse
 from datetime import datetime
+
+from flask_wtf import FlaskForm
+from wtforms import StringField, EmailField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Email, EqualTo
 
 app = Flask(__name__)  # Initialize the Flask application
 
@@ -14,26 +18,45 @@ app = Flask(__name__)  # Initialize the Flask application
 app.secret_key = 'berkay'  # Replace 'your_secret_key' with a random string
 
 
+class RegisterForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    email = EmailField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message='Passwords must match')])
+    submit = SubmitField('Register')
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
+    form = RegisterForm()
+    
+    if form.validate_on_submit():
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
         password_hash = generate_password_hash(password)
 
         conn = get_db()
         cursor = conn.cursor()
 
-        cursor.execute('INSERT INTO user (username, email, password_hash) VALUES (?, ?, ?)', 
-                        (username, email, password_hash))
+        try:
+            # Insert into the database
+            cursor.execute('INSERT INTO user (username, email, password_hash) VALUES (?, ?, ?)', 
+                           (username, email, password_hash))
+            conn.commit()
+            flash('Registration successful! You can now log in.', 'success')
+            return redirect(url_for('index'))
 
-        conn.commit()
-        conn.close()
-        
-        return redirect(url_for('index'))
-    
-    return render_template('register.html')
+
+        except IntegrityError:
+            # Handle duplicate username or email
+            flash('An account with that username or email already exists.', 'danger')
+            conn.rollback()
+
+        finally:
+            conn.close()
+
+    return render_template('register.html', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
