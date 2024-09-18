@@ -3,26 +3,124 @@
 {% block title %}Quick Duel{% endblock %}
 
 {% block content %}
+    <style>
+        /* Gradient background */
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            min-height: 100vh; /* Ensure the background covers the full page */
+            padding: 40px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Page Title Styling */
+        h1 {
+            color: #333;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Card Layout for duel options */
+        .duel-card {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 500px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        /* Additional Styling */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .duel-card {
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+
     <h1>Quick Duel</h1>
 
     {% if duel_id %}
-        <h3 class="mt-4">
-            {% if team2_name %}
-                <strong>{{ team1_name }}</strong> VS <strong>{{ team2_name }}</strong>
-            {% else %}
-                Waiting on Team 2, you are already in a duel, Duel ID: {{ duel_id }}
-            {% endif %}
-        </h3>
+        <div class="duel-card">
+            <h3 class="mt-4">
+                {% if team2_name %}
+                    <strong>{{ team1_name }}</strong> VS <strong>{{ team2_name }}</strong>
+                {% else %}
+                    Waiting on Team 2, you are already in a duel, <strong>Duel ID: {{ duel_id }}</strong>
+                {% endif %}
+            </h3>
 
-        <!-- Button to leave the duel -->
-        <form method="POST" action="{{ url_for('delete_duel') }}">
-            <input type="hidden" name="duel_id" value="{{ duel_id }}">
-            <button type="submit" class="btn btn-danger mt-3">Delete Duel</button>
-        </form>
+            <!-- Button to leave the duel -->
+            <form method="POST" action="{{ url_for('delete_duel') }}">
+                <input type="hidden" name="duel_id" value="{{ duel_id }}">
+                <button type="submit" class="btn btn-danger mt-3">Delete Duel</button>
+            </form>
+        </div>
 
     {% else %}
         <!-- If user is not part of a duel, show options to create or join a duel -->
-        <div class="d-flex flex-column align-items-center">
+        <div class="duel-card">
             <form method="POST" action="{{ url_for('create_duel') }}">
                 <button type="submit" class="btn btn-success">Create Quick Duel</button>
             </form>

@@ -3,34 +3,103 @@
 {% block title %}Create Tournament{% endblock %}
 
 {% block content %}
-<h1>Create a New Tournament</h1>
+    <style>
+        /* Gradient background for the whole page */
+        body {
+            background: linear-gradient(135deg, #f5f5f5 0%, #d9e2f4 100%);
+            min-height: 100vh;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+        }
 
-<form method="POST">
-    <div class="mb-3">
-        <label for="tournament_name" class="form-label">Tournament Name</label>
-        <input type="text" class="form-control" id="tournament_name" name="tournament_name" required>
-    </div>
-    
-    <div class="mb-3">
-        <label for="game" class="form-label">Select Game</label>
-        <select class="form-control" id="game" name="game" required>
-            <option value="Fortnite">Fortnite</option>
-            <option value="Roblox">Roblox</option>
-        </select>
-    </div>
-    
-    <div class="mb-3">
-        <label for="start_date" class="form-label">Start Date</label>
-        <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
-    </div>
-    
-    <div class="mb-3">
-        <label for="end_date" class="form-label">End Date (Optional)</label>
-        <input type="datetime-local" class="form-control" id="end_date" name="end_date">
-    </div>
+        /* Center the card container */
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-    <button type="submit" class="btn btn-primary">Create Tournament</button>
-</form>
+        /* Card Styles */
+        .form-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
 
-<a href="{{ url_for('tournaments') }}" class="btn btn-secondary mt-3">Back to Tournaments</a>
+        /* Button Styles */
+        .btn-primary {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #1e8449;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Margin for the back button */
+        .btn-secondary.mt-3 {
+            margin-top: 15px;
+        }
+    </style>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <div class="form-card">
+            <h1>Create a New Tournament</h1>
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="tournament_name" class="form-label">Tournament Name</label>
+                    <input type="text" class="form-control" id="tournament_name" name="tournament_name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="game" class="form-label">Select Game</label>
+                    <select class="form-control" id="game" name="game" required>
+                        <option value="Fortnite">Fortnite</option>
+                        <option value="Roblox">Roblox</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="end_date" class="form-label">End Date (Optional)</label>
+                    <input type="datetime-local" class="form-control" id="end_date" name="end_date">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Tournament</button>
+            </form>
+
+            <a href="{{ url_for('tournaments') }}" class="btn btn-secondary mt-3">Back to Tournaments</a>
+        </div>
+    </div>
 {% endblock %}

@@ -4,59 +4,103 @@
 
 {% block content %}
     <style>
-        .navbar {
-            background-color: #343a40;
-        }
-        .navbar-brand, .nav-link {
-            color: #fff !important;
-        }
-        .navbar-brand:hover, .nav-link:hover {
-            color: #ffc107 !important;
+        /* Gradient background for the whole page */
+        body {
+            background: linear-gradient(135deg, #f5f5f5 0%, #d9e2f4 100%);
+            min-height: 100vh;
+            padding: 40px;
+            font-family: Arial, sans-serif;
         }
 
+        /* Card Styles */
         .tournament-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .tournament-card:hover {
             transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
         }
 
+        /* Card Container */
         .tournament-card-container {
-            margin: 15px;
+            margin-bottom: 30px;
         }
 
-        /* Styling for the "You're part of" text */
-        .part-of-text {
-                color: green;
-                text-decoration: underline;
-                font-size: 1.5rem;
-                font-weight: bold;
-                margin-top: 20px;
+        /* Button Styles */
+        .btn-create-tournament {
+            background-color: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-create-tournament:hover {
+            background-color: #1e8449;
+            text-decoration: none;
+        }
+
+        /* Heading Styles */
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+        }
+
+        h2.part-of-text {
+            color: #2ecc71;
+            text-decoration: underline;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-top: 30px;
+        }
+
+        h3.participating-teams-text {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #2980b9;
+        }
+
+        .red-message {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        /* Adjust spacing for small screens */
+        @media (max-width: 768px) {
+            .tournament-card-container {
+                margin: 15px 0;
             }
 
-            /* Styling for the "Participating Teams" text */
-            .participating-teams-text {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2.part-of-text, h3.participating-teams-text {
                 font-size: 1.2rem;
-                margin-bottom: 10px;
             }
-
-            /* Additional styling for the red message */
-            .red-message {
-                color: red;
-                font-weight: bold;
-                margin-top: 20px;
-            }
+        }
     </style>
 
+    <!-- Heading -->
     <h1>Available Tournaments</h1>
 
     <!-- Create Tournament Button -->
-    <div class="d-flex justify-content-end mb-3">
-        <a href="{{ url_for('create_tournament') }}" class="btn btn-success">Create Tournament</a>
+    <div class="d-flex justify-content-center mb-4">
+        <a href="{{ url_for('create_tournament') }}" class="btn-create-tournament">Create Tournament</a>
     </div>
 
+    <!-- Tournament Cards -->
     <div class="row">
         {% for tournament in tournaments %}
             <div class="col-md-4 tournament-card-container">
@@ -85,7 +129,7 @@
     </div>
 
     <hr>
-    
+
     <!-- If user is part of a tournament, show the teams -->
     {% if joined_tournament %}
         <h2 class="part-of-text">You're part of {{ joined_tournament.name }}</h2>

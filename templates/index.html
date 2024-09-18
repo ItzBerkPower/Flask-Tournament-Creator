@@ -3,6 +3,75 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    <h1>Welcome to Skill-Up Gaming</h1>
-    <p>Your one-stop destination for competitive gaming.</p>
+    <style>
+        /* Full-screen background image for the landing page only */
+        .landing-page {
+            background: url('https://static.vecteezy.com/system/resources/previews/038/957/874/non_2x/ai-generated-futuristic-esport-background-for-gaming-live-streaming-esport-game-tournament-competition-neon-banner-photo.jpeg') no-repeat center center/cover;
+            min-height: 100vh; /* Fill the entire page height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Darker overlay to make the text more readable */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); /* Darker overlay */
+            z-index: 1;
+        }
+
+        /* Text Styling */
+        .landing-text {
+            position: relative;
+            z-index: 2;
+            color: white;
+            text-align: center;
+            max-width: 900px;
+            font-size: 1.5rem;
+            padding: 20px;
+        }
+
+        /* Adjust the text size on smaller screens */
+        @media (max-width: 768px) {
+            .landing-text {
+                font-size: 1.2rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        p {
+            font-size: 1.3rem;
+            line-height: 1.8;
+        }
+    </style>
+
+    <!-- Landing Page Content -->
+    <div class="landing-page">
+        <div class="overlay"></div> <!-- Faded background overlay -->
+        <div class="landing-text">
+            <h1>Welcome to Skill-Up Gaming</h1>
+            <p>
+                Skill-Up Gaming is the ultimate destination for competitive gamers, whether you're a seasoned pro or just starting your journey. Here, you can engage with a community of passionate gamers, participate in thrilling tournaments, and climb the ranks to become a top competitor. 
+                Our platform is designed to enhance your gaming experience by offering personalized challenges, in-depth performance stats, and leaderboards to track your progress. You’ll also have access to tips, guides, and videos from the best in the gaming industry. 
+                <br><br>
+                Not only do we provide opportunities for individual improvement, but we also focus on team-based events that foster collaboration and strategy. From 1v1 duels to large-scale tournaments, Skill-Up Gaming provides everything you need to test your skills and gain recognition.
+                <br><br>
+                Ready to elevate your gameplay? Join our community, start honing your skills, and participate in regular tournaments for a chance to win rewards and build your reputation. Whether you want to play for fun or become a professional gamer, Skill-Up Gaming is the place for you.
+            </p>
+        </div>
+    </div>
 {% endblock %}

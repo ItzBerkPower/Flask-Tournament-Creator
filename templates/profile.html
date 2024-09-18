@@ -4,155 +4,198 @@
 
 {% block content %}
     <style>
-        /* Style for the Profile Title */
+        /* Gradient background */
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh; /* Ensure the background covers the full page */
+            padding: 40px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Profile Title Styling */
         h1.profile-title {
-            color: #2c3e50;
-            text-decoration: underline;
+            color: white;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
         }
 
-        /* Smaller dropdown for game selection */
-        select#game {
-            width: 200px; /* Make it smaller */
+        /* Card Layout for all sections */
+        .profile-card {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
         }
 
-        /* Flexbox layout for game selection and player statistics side by side */
+        .profile-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Game Selection and Player Stats */
         .profile-game-stats {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 30px;
         }
 
         .profile-game-stats div {
-            width: 45%; /* Adjust width of each section */
+            width: 48%;
         }
 
-        /* Space between sections */
-        hr {
-            margin: 40px 0; /* Add some space between sections */
-        }
-
-        /* Smaller sub-headings */
-        h3 {
-            font-size: 20px; /* Make sub-headings smaller */
-        }
-
-        /* Larger "Update User Details" title */
-        h1.update-details-title {
-            margin-top: 50px;
-            font-size: 30px; /* Make the "Update User Details" title bigger */
-            color: #2980b9;
-            text-decoration: underline;
-        }
-
-        /* Add some space at the bottom */
-        .update-form-section {
-            margin-bottom: 60px; /* Add whitespace at the bottom */
-        }
-
-        /* Space between the form input fields */
+        /* Form Styles */
         .form-group {
             margin-bottom: 15px;
         }
 
-        /* Style for form labels */
         label {
             font-weight: bold;
         }
 
-        /* Style for buttons */
+        input[type="text"], input[type="email"], input[type="password"], select.form-control {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
         button.btn {
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-size: 16px;
+            border-radius: 5px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.btn:hover {
+            background-color: #1a5c88;
+        }
+
+        /* Section Title */
+        h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        /* Message styling */
+        .no-profile-message {
+            color: red;
+            font-weight: bold;
+            margin: 20px 0;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-game-stats {
+                flex-direction: column;
+            }
+
+            .profile-game-stats div {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            h1.profile-title {
+                font-size: 2rem;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
         }
     </style>
 
-    <!-- Your Profile Section -->
+    <!-- Profile Section -->
     <h1 class="profile-title">Your Profile</h1>
 
     {% if player_profile %}
         <!-- Game and Player Statistics side by side -->
-        <div class="profile-game-stats">
-            <div>
-                <h3>Favourite Game: {{ player_profile.game }}</h3>
-                <form method="POST" action="{{ url_for('update_game') }}">
-                    <label for="game">Select Favourite Game:</label>
-                    <select name="game" id="game" class="form-control">
-                        <option value="Fortnite" {% if player_profile.game == 'Fortnite' %}selected{% endif %}>Fortnite</option>
-                        <option value="Roblox" {% if player_profile.game == 'Roblox' %}selected{% endif %}>Roblox</option>
-                    </select>
-                    <button type="submit" class="btn btn-success mt-3">Save</button>
-                </form>
-            </div>
+        <div class="profile-card">
+            <div class="profile-game-stats">
+                <div>
+                    <h3>Favourite Game: {{ player_profile.game }}</h3>
+                    <form method="POST" action="{{ url_for('update_game') }}">
+                        <div class="form-group">
+                            <label for="game">Select Favourite Game:</label>
+                            <select name="game" id="game" class="form-control">
+                                <option value="Fortnite" {% if player_profile.game == 'Fortnite' %}selected{% endif %}>Fortnite</option>
+                                <option value="Roblox" {% if player_profile.game == 'Roblox' %}selected{% endif %}>Roblox</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success mt-3">Save</button>
+                    </form>
+                </div>
 
-            <div>
-                <h3>Player Statistics:</h3>
-                {% if player_statistics %}
-                    <ul>
-                        <li>Total Kills: {{ player_statistics.total_kills }}</li>
-                        <li>Total Deaths: {{ player_statistics.total_deaths }}</li>
-                        <li>Total Assists: {{ player_statistics.total_assists }}</li>
-                    </ul>
-                {% else %}
-                    <p>No statistics available.</p>
-                {% endif %}
+                <div>
+                    <h3>Player Statistics:</h3>
+                    {% if player_statistics %}
+                        <ul>
+                            <li>Total Kills: {{ player_statistics.total_kills }}</li>
+                            <li>Total Deaths: {{ player_statistics.total_deaths }}</li>
+                            <li>Total Assists: {{ player_statistics.total_assists }}</li>
+                        </ul>
+                    {% else %}
+                        <p>No statistics available.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        
+
         <hr>
+
     {% else %}
-        <p>You don't have a profile yet. Click the button below to create one.</p>
+        <p class="no-profile-message">You don't have a profile yet. Click the button below to create one.</p>
         <form method="POST" action="{{ url_for('create_profile') }}">
             <button type="submit" class="btn btn-primary">Create Profile</button>
         </form>
     {% endif %}
 
     <!-- Update User Details Section -->
-    <h1 class="update-details-title">Update User Details</h1>
+    <div class="profile-card">
+        <h3>Update Username</h3>
+        <form method="POST" action="{{ url_for('update_username') }}">
+            <div class="form-group">
+                <label for="username">New Username:</label>
+                <input type="text" name="username" id="username" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">Update Username</button>
+        </form>
+    </div>
 
-    {% if session.get('username') %}
-        <!-- Update Username Section -->
-        <div class="update-form-section">
-            <h3>Update Username</h3>
-            <form method="POST" action="{{ url_for('update_username') }}">
-                <div class="form-group">
-                    <label for="username">New Username:</label>
-                    <input type="text" name="username" id="username" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-success mt-3">Update Username</button>
-            </form>
-        </div>
+    <div class="profile-card">
+        <h3>Update Email</h3>
+        <form method="POST" action="{{ url_for('update_email') }}">
+            <div class="form-group">
+                <label for="email">New Email:</label>
+                <input type="email" name="email" id="email" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">Update Email</button>
+        </form>
+    </div>
 
-        <hr>
+    <div class="profile-card">
+        <h3>Update Password</h3>
+        <form method="POST" action="{{ url_for('update_password') }}">
+            <div class="form-group">
+                <label for="old_password">Old Password:</label>
+                <input type="password" name="old_password" id="old_password" class="form-control" required>
 
-        <!-- Update Email Section -->
-        <div class="update-form-section">
-            <h3>Update Email</h3>
-            <form method="POST" action="{{ url_for('update_email') }}">
-                <div class="form-group">
-                    <label for="email">New Email:</label>
-                    <input type="email" name="email" id="email" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-success mt-3">Update Email</button>
-            </form>
-        </div>
-
-        <hr>
-
-        <!-- Update Password Section -->
-        <div class="update-form-section">
-            <h3>Update Password</h3>
-            <form method="POST" action="{{ url_for('update_password') }}">
-                <div class="form-group">
-                    <label for="password">Old Password:</label>
-                    <input type="password" name="old_password" id="old_password" class="form-control" required>
-
-                    <label for="password">New Password:</label>
-                    <input type="password" name="new_password" id="new_password" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-success mt-3">Update Password</button>
-            </form>
-        </div>
-    {% endif %}
+                <label for="new_password">New Password:</label>
+                <input type="password" name="new_password" id="new_password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">Update Password</button>
+        </form>
+    </div>
 
 {% endblock %}
