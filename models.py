@@ -10,13 +10,17 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, EmailField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo
 
+
 #DATABASE = 'datah.db', kept creating it in outer file if you run the code in outer directory
-base_dir = os.path.abspath(os.path.dirname(__file__))
+base_dir = os.path.abspath(os.path.dirname(__file__)) # So instead define the directory
 db_path = os.path.join(base_dir, 'datah.db')
+
+app = Flask(__name__)  # Initialize the Flask application
+app.secret_key = 'berkay' # Secret key for session manageent 
 
 # Connect to database
 def get_db():
-    conn = sqlite3.connect(db_path) #
+    conn = sqlite3.connect(db_path) # Create connection between database and flask
     conn.row_factory = sqlite3.Row # Allows fetching rows as dictionaries
     return conn 
 
@@ -24,7 +28,7 @@ def get_db():
 # Initialise database
 def init_db():
     with get_db() as conn:
-        cursor = conn.cursor()
+        cursor = conn.cursor() # Initialise cursor object
 
         # Create the user table
         cursor.execute('''
@@ -156,26 +160,32 @@ def init_db():
 
 # HELPER FUNCTIONS
 
+# Helper function to get the id of the team a user is in
 def get_user_team_id(profile_id):
     with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT team_id FROM team_member WHERE profile_id = ?", (profile_id,))
+        cursor = conn.cursor() # Initalise cursor object
+        cursor.execute("SELECT team_id FROM team_member WHERE profile_id = ?", (profile_id,)) # Fetch the team id if it exists
         result = cursor.fetchone()
 
-    return result['team_id'] if result else None
+    return result['team_id'] if result else None # Return the team id if it exists, if not, return 'None'
 
 
-
+# Helper function to check if user profile and user account exists
 def check_if_profile_and_user_exists():
+    # If username not in session, user account doesn't exist, give warning & redirect
     if not session.get('username'):
+        print('login error')
         flash('You need to log in first.', 'warning')
         return redirect(url_for('login'))
 
+    # If profile id not in session, user profile doesn't exist, give warning & redirect
     if not session.get('profile_id'):
         flash('You need to create a profile first.', 'warning')
         return redirect(url_for('profile'))
     
+# Helper function to check if user account exists
 def check_if_user_exists():
+    # If username not in session, user account doesn't exist, give warning & redirect
     if not session.get('username'):
         flash('You need to log in first.', 'warning')
         return redirect(url_for('login'))
