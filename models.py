@@ -1,14 +1,10 @@
+# ALL IMPORTS
 import sqlite3 # Import sqlite3 for database handling
 import os
 from flask import Flask, render_template , request, redirect, url_for, flash, session # Import Flask and render_template for handling requests and rendering HTML templates
 from sqlite3 import IntegrityError # Import sqlite3 for database handling
 from werkzeug.security import generate_password_hash, check_password_hash # For passwords
-
 from datetime import datetime
-
-from flask_wtf import FlaskForm
-from wtforms import StringField, EmailField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo
 
 
 #DATABASE = 'datah.db', kept creating it in outer file if you run the code in outer directory

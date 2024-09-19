@@ -207,6 +207,15 @@
                             {% endfor %}
                         </ul>
                     </div>
+
+                    <!-- Next Round and End Duel Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <!-- Next Round Button -->
+                        <form method="POST" action="{{ url_for('next_round') }}">
+                            <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- Match ID hidden field -->
+                            <button type="submit" class="btn btn-primary">Next Round</button>
+                        </form>
+                    </div>
                 </div>
 
                 <!-- End Duel Button -->
@@ -215,15 +224,6 @@
                     <button type="submit" class="btn btn-danger">End Duel</button>
                 </form>
             {% endif %}
-        
-            <!-- Next Round and End Duel Buttons -->
-            <div class="d-flex justify-content-between mt-4">
-                <!-- Next Round Button -->
-                <form method="POST" action="{{ url_for('next_round') }}">
-                    <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- Match ID hidden field -->
-                    <button type="submit" class="btn btn-primary">Next Round</button>
-                </form>
-            </div>
         </div>
 
     {% else %}

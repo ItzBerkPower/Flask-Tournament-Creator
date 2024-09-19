@@ -1,3 +1,4 @@
+# ALL IMPORTS
 from flask import Flask, render_template , request, redirect, url_for, flash, session # Import Flask and render_template for handling requests and rendering HTML templates
 import os # Import os module to handle file paths
 from sqlite3 import IntegrityError # Import sqlite3 for database handling

@@ -1,3 +1,4 @@
+# ALL IMPORTS
 from flask import render_template , request, redirect, url_for, flash, session # Import Flask and render_template for handling requests and rendering HTML templates
 from sqlite3 import IntegrityError # Import sqlite3 for database handling
 from werkzeug.security import generate_password_hash, check_password_hash # For passwords
@@ -127,12 +128,23 @@ def update_username():
     new_username = request.form.get('username')
     user_id = session['user_id']
 
-    with get_db() as conn:
-        cursor = conn.cursor() # Initialise cursor object
+    # Initialise the cursor
+    conn = get_db()
+    cursor = conn.cursor() 
+
+    try:
         cursor.execute('UPDATE user SET username = ? WHERE user_id = ?', (new_username, user_id)) # Update the username of the user
         conn.commit()
         session['username'] = new_username  # Update session with new username
         flash('Username updated successfully.', 'success') # Success message
+
+    # If error, where that username already exists, send warning message instead of crashing program
+    except IntegrityError:
+        flash('An account with that username already exists.', 'danger')
+        conn.rollback()
+
+    finally:
+        conn.close()
 
     return redirect(url_for('profile')) # Reload the page
 
@@ -151,11 +163,24 @@ def update_email():
     new_email = request.form.get('email')
     user_id = session['user_id']
 
-    with get_db() as conn:
+    # Initialise the cursor
+    conn = get_db()
+    cursor = conn.cursor() 
+    
+    try:
         cursor = conn.cursor() # Initialise cursor object
         cursor.execute('UPDATE user SET email = ? WHERE user_id = ?', (new_email, user_id)) # Update the email of the user
         conn.commit()
         flash('Email updated successfully.', 'success') # Success message
+
+    # If error, where that email already exists, send warning message instead of crashing program
+    except IntegrityError:
+        flash('An account with that email already exists.', 'danger')
+        conn.rollback()
+
+    finally:
+        conn.close()
+    
 
     return redirect(url_for('profile')) # Reload the page
 

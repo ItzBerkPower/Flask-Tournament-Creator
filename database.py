@@ -1,5 +1,3 @@
-# ADD REGISTRATION DETECTION FOR UNIQUE ACCOUNTS  
-
 # ALL IMPORTS 
 from flask import render_template , request, redirect, url_for, flash, session # All Flask imports
 from sqlite3 import IntegrityError # # Actual database handling

@@ -1,3 +1,4 @@
+# ALL IMPORTS
 from flask import render_template , request, redirect, url_for, flash, session # Import Flask and render_template for handling requests and rendering HTML templates
 from sqlite3 import IntegrityError # Import sqlite3 for database handling
 from models import * # All the models for database
