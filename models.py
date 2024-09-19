@@ -189,3 +189,22 @@ def check_if_user_exists():
     if not session.get('username'):
         flash('You need to log in first.', 'warning')
         return redirect(url_for('login'))
+    
+
+# Check if the player is part of a team
+def check_player_part_of_team(profile_id):
+    result = None
+
+    with get_db() as conn:
+        cursor = conn.cursor() # Initalise cursor object
+
+        # Find if player is part of a team
+        cursor.execute('''
+            SELECT team_member.team_id
+            FROM team_member
+            WHERE team_member.profile_id = ?
+        ''', (profile_id,))
+
+        result = cursor.fetchone() # Put in a variable the player team_id if part of team
+
+    return result # Return the result as variable

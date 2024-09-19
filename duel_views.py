@@ -104,32 +104,6 @@ def quick_duel():
 
 
 
-
-
-
-
-
-# Check if the player is part of a team
-def check_player_part_of_team(profile_id):
-    result = None
-
-    with get_db() as conn:
-        cursor = conn.cursor() # Initalise cursor object
-
-        # Check if player is part of a team
-        cursor.execute('''
-            SELECT team_member.team_id
-            FROM team_member
-            WHERE team_member.profile_id = ?
-        ''', (profile_id,))
-
-        result = cursor.fetchone()
-
-    return result
-
-
-
-
 # Route to create a quick duel
 @app.route('/create_duel', methods=['POST'])
 def create_duel():
