@@ -9,7 +9,7 @@ from datetime import datetime
 
 #DATABASE = 'datah.db', kept creating it in outer file if you run the code in outer directory
 base_dir = os.path.abspath(os.path.dirname(__file__)) # So instead define the directory
-db_path = os.path.join(base_dir, 'datah.db')
+db_path = os.path.join(base_dir, 'database.db')
 
 app = Flask(__name__)  # Initialize the Flask application
 app.secret_key = 'berkay' # Secret key for session manageent 
