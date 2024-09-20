@@ -65,7 +65,9 @@ def quick_duel():
         ''', (team_id, team_id))
         match_data = cursor.fetchone()
 
+        # If team already in a duel    
         if match_data:
+            # Initialise variables to pass onto template
             duel_id = match_data['match_id']
             team1_name = match_data['team1_name']
             team2_name = match_data['team2_name']
@@ -75,8 +77,8 @@ def quick_duel():
             cursor.execute('''
                 SELECT user.username
                 FROM team_member
-                JOIN player_profile ON team_member.profile_id = player_profile.profile_id
-                JOIN user ON player_profile.user_id = user.user_id
+                INNER JOIN player_profile ON team_member.profile_id = player_profile.profile_id
+                INNER JOIN user ON player_profile.user_id = user.user_id
                 WHERE team_member.team_id = ?
             ''', (match_data['team1_id'],))
             team1_players = cursor.fetchall()
@@ -84,12 +86,13 @@ def quick_duel():
             cursor.execute('''
                 SELECT user.username
                 FROM team_member
-                JOIN player_profile ON team_member.profile_id = player_profile.profile_id
-                JOIN user ON player_profile.user_id = user.user_id
+                INNER JOIN player_profile ON team_member.profile_id = player_profile.profile_id
+                INNER JOIN user ON player_profile.user_id = user.user_id
                 WHERE team_member.team_id = ?
             ''', (match_data['team2_id'],))
             team2_players = cursor.fetchall()
 
+    # Render the template for website, passing all variables as parameters to display in HTML page
     return render_template(
         'quick_duel.html',
         duel_id=duel_id,

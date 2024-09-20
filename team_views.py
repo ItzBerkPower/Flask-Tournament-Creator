@@ -32,7 +32,7 @@ def team():
         cursor.execute('''
             SELECT team.team_id, team.team_name 
             FROM team_member 
-            JOIN team ON team_member.team_id = team.team_id 
+            INNER JOIN team ON team_member.team_id = team.team_id 
             WHERE team_member.profile_id = ?
         ''', (profile_id,))
 
@@ -46,8 +46,8 @@ def team():
             cursor.execute('''
                 SELECT user.username 
                 FROM team_member 
-                JOIN player_profile ON team_member.profile_id = player_profile.profile_id
-                JOIN user ON player_profile.user_id = user.user_id
+                INNER JOIN player_profile ON team_member.profile_id = player_profile.profile_id
+                INNER JOIN user ON player_profile.user_id = user.user_id
                 WHERE team_member.team_id = ?
             ''', (team_id,))
             team_members = cursor.fetchall() # Get all usernames
