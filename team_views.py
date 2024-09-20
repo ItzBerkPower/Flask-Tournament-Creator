@@ -159,7 +159,9 @@ def join_team():
                     cursor.execute('INSERT INTO team_member (team_id, profile_id) VALUES (?, ?)', (team_id, profile_id))
                     conn.commit()
                     flash(f'You have successfully joined the team "{team_name}".', 'success') # Give success message
-
+            
+        return redirect(url_for('team')) # Reload the page to update it
+    
     return render_template('join_team.html') # Render template
 
 

@@ -68,6 +68,27 @@
             background-color: #c82333;
         }
 
+
+        .d-flex {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .d-flex form {
+            margin: 0 10px; /* Add spacing between buttons */
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+
+
         /* Player Actions */
         .player-actions {
             display: flex;
@@ -97,6 +118,26 @@
             font-size: 1rem;
         }
 
+        /* Styles for bottom buttons */
+        .bottom-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .bottom-buttons form {
+            margin-right: 10px;  /* Add spacing between buttons */
+        }
+
+        .bottom-buttons .btn {
+            width: 140px; /* Optional: Set a width to make buttons uniform */
+        }
+
+        .bottom-buttons .ml-2 {
+            margin-left: 10px;
+        }
+
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .duel-card {
@@ -108,6 +149,7 @@
                 font-size: 2rem;
             }
         }
+
     </style>
 
     <h1>Quick Duel</h1>
@@ -145,25 +187,25 @@
                                     <div class="player-actions">
                                         <!-- Kill button -->
                                         <form method="POST" action="{{ url_for('update_statistic') }}" style="display: inline;">
-                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">  <!-- This passes the player's unique profile_id -->
-                                            <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- This passes the current match_id -->
-                                            <input type="hidden" name="action" value="kill">  <!-- Action is 'kill' -->
+                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">
+                                            <input type="hidden" name="match_id" value="{{ duel_id }}">
+                                            <input type="hidden" name="action" value="kill">
                                             <button type="submit" class="btn btn-primary">+1 Kill</button>
                                         </form>
-                                    
+
                                         <!-- Death button -->
                                         <form method="POST" action="{{ url_for('update_statistic') }}" style="display: inline;">
-                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">  <!-- This passes the player's unique profile_id -->
-                                            <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- This passes the current match_id -->
-                                            <input type="hidden" name="action" value="death">  <!-- Action is 'death' -->
+                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">
+                                            <input type="hidden" name="match_id" value="{{ duel_id }}">
+                                            <input type="hidden" name="action" value="death">
                                             <button type="submit" class="btn btn-danger">+1 Death</button>
                                         </form>
-                                    
+
                                         <!-- Assist button -->
                                         <form method="POST" action="{{ url_for('update_statistic') }}" style="display: inline;">
-                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">  <!-- This passes the player's unique profile_id -->
-                                            <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- This passes the current match_id -->
-                                            <input type="hidden" name="action" value="assist">  <!-- Action is 'assist' -->
+                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">
+                                            <input type="hidden" name="match_id" value="{{ duel_id }}">
+                                            <input type="hidden" name="action" value="assist">
                                             <button type="submit" class="btn btn-success">+1 Assist</button>
                                         </form>
                                     </div>
@@ -181,25 +223,25 @@
                                     <div class="player-actions">
                                         <!-- Kill button -->
                                         <form method="POST" action="{{ url_for('update_statistic') }}" style="display: inline;">
-                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">  <!-- This passes the player's unique profile_id -->
-                                            <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- This passes the current match_id -->
-                                            <input type="hidden" name="action" value="kill">  <!-- Action is 'kill' -->
+                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">
+                                            <input type="hidden" name="match_id" value="{{ duel_id }}">
+                                            <input type="hidden" name="action" value="kill">
                                             <button type="submit" class="btn btn-primary">+1 Kill</button>
                                         </form>
-                                    
+
                                         <!-- Death button -->
                                         <form method="POST" action="{{ url_for('update_statistic') }}" style="display: inline;">
-                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">  <!-- This passes the player's unique profile_id -->
-                                            <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- This passes the current match_id -->
-                                            <input type="hidden" name="action" value="death">  <!-- Action is 'death' -->
+                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">
+                                            <input type="hidden" name="match_id" value="{{ duel_id }}">
+                                            <input type="hidden" name="action" value="death">
                                             <button type="submit" class="btn btn-danger">+1 Death</button>
                                         </form>
-                                    
+
                                         <!-- Assist button -->
                                         <form method="POST" action="{{ url_for('update_statistic') }}" style="display: inline;">
-                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">  <!-- This passes the player's unique profile_id -->
-                                            <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- This passes the current match_id -->
-                                            <input type="hidden" name="action" value="assist">  <!-- Action is 'assist' -->
+                                            <input type="hidden" name="profile_id" value="{{ player.profile_id }}">
+                                            <input type="hidden" name="match_id" value="{{ duel_id }}">
+                                            <input type="hidden" name="action" value="assist">
                                             <button type="submit" class="btn btn-success">+1 Assist</button>
                                         </form>
                                     </div>
@@ -207,23 +249,25 @@
                             {% endfor %}
                         </ul>
                     </div>
-
-                    <!-- Next Round and End Duel Buttons -->
-                    <div class="d-flex justify-content-between mt-4">
-                        <!-- Next Round Button -->
-                        <form method="POST" action="{{ url_for('next_round') }}">
-                            <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- Match ID hidden field -->
-                            <button type="submit" class="btn btn-primary">Next Round</button>
-                        </form>
-                    </div>
                 </div>
 
-                <!-- End Duel Button -->
-                <form method="POST" action="{{ url_for('end_duel') }}">
-                    <input type="hidden" name="match_id" value="{{ duel_id }}">  <!-- Match ID hidden field -->
-                    <button type="submit" class="btn btn-danger">End Duel</button>
-                </form>
+                <!-- Next Round and End Duel Buttons at the bottom -->
+                <div class="bottom-buttons d-flex justify-content-center mt-4">
+                    <!-- Next Round Button -->
+                    <form method="POST" action="{{ url_for('next_round') }}" style="display: inline;">
+                        <input type="hidden" name="match_id" value="{{ duel_id }}">
+                        <button type="submit" class="btn btn-primary">Next Round</button>
+                    </form>
+
+                    <!-- End Duel Button -->
+                    <form method="POST" action="{{ url_for('end_duel') }}" style="display: inline;">
+                        <input type="hidden" name="match_id" value="{{ duel_id }}">
+                        <button type="submit" class="btn btn-danger ml-2">End Duel</button>
+                    </form>
+                </div>
+
             {% endif %}
+
         </div>
 
     {% else %}
