@@ -14,6 +14,7 @@ db_path = os.path.join(base_dir, 'database.db')
 app = Flask(__name__)  # Initialize the Flask application
 app.secret_key = 'berkay' # Secret key for session manageent 
 
+app.config['TESTING'] = True
 # Connect to database
 def get_db():
     conn = sqlite3.connect(db_path) # Create connection between database and flask
